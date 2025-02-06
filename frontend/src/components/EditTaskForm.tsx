@@ -3,12 +3,19 @@
 import { useState } from "react"
 import type React from "react" // Added import for React
 
-interface TaskFormProps {
-  onSubmit: (task: { title: string; description: string; dueDate: string, status: string }) => void
-  values : { title: string; description: string; dueDate: string , status: string}
+interface User {
+  _id: string;
+  name: string;
+  email: string;
 }
 
-const EditTaskForm: React.FC<TaskFormProps> = ({ onSubmit,values }) => {
+interface TaskFormProps {
+  onSubmit: (task: { title: string; description: string; dueDate: string, status: string ,assignedTo: string}) => void
+  values : { title: string; description: string; dueDate: string , status: string, assignedTo: string},
+  users: User[]
+}
+
+const EditTaskForm: React.FC<TaskFormProps> = ({ onSubmit,values, users }) => {
 
 
     const formatDate = (dateString: string) => {
@@ -22,13 +29,11 @@ const EditTaskForm: React.FC<TaskFormProps> = ({ onSubmit,values }) => {
   const [description, setDescription] = useState(values.description)
   const [dueDate, setDueDate] = useState(formatDate(values.dueDate))
   const [status, setStatus] = useState(values.status)
+ const [assignedTo, setAssignedTo] = useState<string> (values.assignedTo)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit({ title, description, dueDate , status})
-    setTitle("")
-    setDescription("")
-    setDueDate("")
+    onSubmit({ title, description, dueDate , status, assignedTo})
   }
 
   const todayDate = new Date().toISOString().slice(0, 10);
@@ -74,10 +79,21 @@ const EditTaskForm: React.FC<TaskFormProps> = ({ onSubmit,values }) => {
         />
       </div>
 
+      <div>
+      <select className="select select-bordered w-full" onChange={(e) => setAssignedTo(e.target.value)}>
+        {
+          users.map((user) => (
+            <option key={user._id} value={user._id} selected ={user._id === assignedTo}>{user.name}</option>
+          ))
+        }
+  
+</select>
+</div>
+
 <div>
       <select className="select select-bordered w-full" onChange={(e) => setStatus(e.target.value)}>
-  <option selected value={'pending'}>Pending</option>
-  <option value={'completed'}>Completed</option>
+  <option value={'pending'} selected = {status === 'pending'}>Pending</option>
+  <option value={'completed'} selected = {status === 'completed'}>Completed</option>
 </select>
 </div>
 

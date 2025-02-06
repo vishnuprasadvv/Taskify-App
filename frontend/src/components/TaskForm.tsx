@@ -1,20 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type React from "react" // Added import for React
 
-interface TaskFormProps {
-  onSubmit: (task: { title: string; description: string; dueDate: string }) => void
+interface User {
+  _id: string;
+  name: string;
+  email: string;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
+
+
+interface TaskFormProps {
+  onSubmit: (task: { title: string; description: string; dueDate: string, assignedTo: string }) => void
+  users: User[]
+}
+
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit ,users}) => {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState("")
+  const [assignedTo, setAssignedTo] = useState<string> ('')
+ 
+
+  useEffect(() => {
+   
+    if (users.length > 0 && !assignedTo) {
+      setAssignedTo(users[0]._id);
+    }
+  }, [users, assignedTo]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit({ title, description, dueDate })
+    onSubmit({ title, description, dueDate , assignedTo})
     setTitle("")
     setDescription("")
     setDueDate("")
@@ -61,6 +80,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
           required
           className="input mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
         />
+      </div>
+      <div>
+      <select className="select select-bordered w-full" onChange={(e) => setAssignedTo(e.target.value)}>
+        {
+          users.map((user) => (
+            <option key={user._id} value={user._id}>{user.name}</option>
+          ))
+        }
+  
+</select>
       </div>
       <button
         type="submit"

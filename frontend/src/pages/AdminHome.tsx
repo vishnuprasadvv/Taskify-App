@@ -1,21 +1,21 @@
 import React from "react";
+import Dashboard from "./Dashboard";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logout } from "@/features/userSlice";
 import toast from "react-hot-toast";
-import { logoutApi } from "@/api/api";
+import { adminLogoutApi } from "@/api/api";
 import { RootState } from "@/app/store";
-import UserDashboard from "@/components/UserDashboard";
+import { adminLogout } from "@/features/adminSlice";
 
-const Home: React.FC = () => {
-  const { user } = useSelector((state: RootState) => state.user);
+const AdminHome: React.FC = () => {
+  const { admin } = useSelector((state: RootState) => state.admin);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await logoutApi();
-      dispatch(logout());
+      await adminLogoutApi();
+      dispatch(adminLogout());
       toast.success("Loggedout successfully");
       navigate("/login");
     } catch (error) {
@@ -29,7 +29,7 @@ const Home: React.FC = () => {
           <h1 className="text-2xl font-bold text-teal-700 pl-2">Taskify</h1>
           <div className="flex items-center gap-4">
             <div>
-              <span className="font-semibold">Hi, {user?.name} </span>
+              <span className="font-semibold">Hi, {admin?.name} </span>
             </div>
 
             <div className="dropdown dropdown-end">
@@ -56,11 +56,11 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div>
-            <UserDashboard />
+          <Dashboard />
         </div>
       </div>
     </div>
   );
 };
 
-export default Home;
+export default AdminHome;
