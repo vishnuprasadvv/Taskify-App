@@ -14,3 +14,22 @@ export const logoutApi = async() => {
     return response.data;
 }
 
+
+export const createTask = async(data: {title:string, dueDate: string, description: string}) => {
+    const response = await api.post('task/create', {title: data.title , dueDate: data.dueDate, description:data.description})
+    return response.data;
+}
+
+export const updateTaskApi = async(id: string, data: {title:string, dueDate: string, description: string, status: string}) => {
+    const response = await api.patch(`task/update/${id}`, {title: data.title , dueDate: data.dueDate, description:data.description, status: data.status})
+    return response.data;
+}
+export const deleteTaskApi = async(id: string) => {
+    const response = await api.delete(`task/delete/${id}`)
+    return response.data;
+}
+
+export const getTasksApi = async() => {
+    const response = await api.get('task')
+    return response.data;
+}

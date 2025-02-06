@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { config } from './config/config';
 import { connectDB } from './infrastructure/database/mongoose';
 import authRouter from './interface/routes/authRoutes';
+import taskRouter from './interface/routes/taskRoutes'
 import bodyParser from 'body-parser'
 import { errorHandler } from './interface/middlewares/errorHandler';
 import cookieParser from 'cookie-parser'
@@ -26,6 +27,7 @@ app.use(cors({
 }))
 
 app.use('/api/auth', authRouter )
+app.use('/api/task', taskRouter )
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({success : true ,message: 'Connection successful.'})
