@@ -8,6 +8,7 @@ import { io } from "../../server";
 import { GetTasksByUserUseCase } from "../../application/useCase/getTaskByUserUseCase";
 import { GetAllUsersUseCase } from "../../application/useCase/getAllUsers.UseCase";
 import { UserRepository } from "../../infrastructure/database/repository/userRepository";
+import { GetChartDataUseCase } from "../../application/useCase/getChartDataUseCase";
 
 const taskRepository = new TaskRepository()
 const userRepository = new UserRepository()
@@ -119,6 +120,20 @@ export const getUsersController = async(req: Request, res: Response, next: NextF
         const useCase = new  GetAllUsersUseCase(userRepository)
         const result = await useCase.execute()
         res.status(200).json({success:true, message: 'All users fetched', data: result})
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const getChartDataController = async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user;
+        if(!user){
+            throw new Error('User ID not found')
+        }
+        const useCase = new  GetChartDataUseCase(taskRepository)
+        const result = await useCase.execute(user.id)
+        res.status(200).json({success:true, message: 'Chart data fetched', data: result})
     } catch (error) {
         next(error)
     }

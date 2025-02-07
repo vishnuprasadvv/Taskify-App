@@ -4,6 +4,7 @@ import mongoose, { Types } from "mongoose";
 import { ITaskRepository } from "../../../application/interface/ITaskRepository";
 import { Task } from "../../../domain/entities/Task";
 import { TaskModel } from "../models/TaskModel"
+import { io } from "../../../server";
 
 interface PopulatedTask extends mongoose.Document {
     title: string;
@@ -119,6 +120,51 @@ export class TaskRepository implements ITaskRepository {
 
         } catch (error:any) {
             throw new Error('Error updating task: ' + error.message)
+        }
+    }
+
+    async checkDueTasks() {
+        const now = new Date();
+        try {
+            const overDueTasks = await TaskModel.find({
+                dueDate : { $lt: now},
+                status: { $nin: ['completed', 'due']}
+            })
+
+            overDueTasks.forEach(async(task) => {
+                task.status = 'due';
+                await task.save();
+                console.log(`Task ${task.title} status updated to "Due"`)
+
+                io.to(task.assignedTo.toString()).emit('taskDue', task);
+                io.to(task.userId.toString()).emit('adminTaskDue', task)
+            })
+        } catch (error) {
+            console.error('Error updating overdue tasks', error)
+        }
+    }
+
+    async getTaskStatusCounts(userId: string) {
+        const objectId = new mongoose.Types.ObjectId(userId);
+        try {
+            const taskCounts = await TaskModel.aggregate([
+                {
+                    $match:{
+                        userId: objectId
+                    }
+                }
+                    ,
+                    { 
+                        $group: {
+                        _id: '$status',
+                        count: { $sum : 1},
+                    }
+                }
+            ])
+
+            return taskCounts;
+        } catch (error) {
+            console.error('Error fetching task status counts', error)
         }
     }
 

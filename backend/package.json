@@ -10,6 +10,7 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.7",
+    "node-cron": "^3.0.3",
     "parser": "^0.1.4",
     "socket.io": "^4.8.1",
     "ts-node": "^10.9.2",
@@ -30,6 +31,7 @@
   "description": "",
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
-    "@types/jsonwebtoken": "^9.0.8"
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/node-cron": "^3.0.11"
   }
 }

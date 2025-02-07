@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTaskController, deleteTaskController, getAllTasksController, getTasksByUserController, getUsersController, updateTaskController } from "../controllers/taskController";
+import { createTaskController, deleteTaskController, getAllTasksController, getChartDataController, getTasksByUserController, getUsersController, updateTaskController } from "../controllers/taskController";
 import { isAdminAuthenticated} from "../middlewares/authMiddleware";
 
 
@@ -12,6 +12,7 @@ router.delete('/delete/:id',isAdminAuthenticated, deleteTaskController)
 router.get('/user', isAdminAuthenticated, getTasksByUserController)
 router.get('/all',isAdminAuthenticated, getAllTasksController)
 router.get('/users',isAdminAuthenticated, getUsersController)
+router.get('/chart-data', isAdminAuthenticated, getChartDataController)
 
 
 
