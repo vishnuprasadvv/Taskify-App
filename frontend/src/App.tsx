@@ -4,7 +4,6 @@ import Login from "./pages/Login";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
-import TaskList from "./components/TaskList";
 import AdminSignup from "./pages/AdminSignup";
 import AdminLogin from "./pages/AdminLogin";
 import AdminHome from "./pages/AdminHome";
@@ -25,7 +24,6 @@ function App() {
 
         <Route element={<AdminProtectedRoute />}>
         <Route path="/admin/dashboard" element={<AdminHome />} />
-        <Route path="/tasks" element={<TaskList />} />
         </Route>
 
           <Route element={<ProtectedRoute />}>
