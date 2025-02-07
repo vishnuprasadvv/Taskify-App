@@ -23,7 +23,7 @@ const AdminHome: React.FC = () => {
     }
   };
   return (
-    <div className="bg-gray-100 w-screen  h-screen">
+    <div className="bg-gray-100 w-screen h-full">
       <div className="max-w-7xl w-full place-self-center">
         <div className="w-full m-0 bg-teal-100 h-16 flex items-center justify-between mb-2">
           <h1 className="text-2xl font-bold text-teal-700 pl-2">Taskify</h1>

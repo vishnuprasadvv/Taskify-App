@@ -6,5 +6,6 @@ export class Task{
         public dueDate : Date,
         public status ?: 'pending' | 'completed',
         public _id ?: string,
+        public assignedTo ?: string
     ){}
 }

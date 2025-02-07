@@ -5,6 +5,7 @@ import { RegisterUseCase } from "../../application/useCase/registerUseCase";
 import { generateAccessToken } from "../../utils/jwtUtils";
 import { accessTokenOptions } from "../../config/jwtOptions";
 import { LoginUseCase } from "../../application/useCase/loginUserUseCase";
+import { adminLoginUseCase } from "../../application/useCase/adminLoginUseCase";
 
 const userRepository = new UserRepository()
 
@@ -27,6 +28,27 @@ export const registerController = async(req: Request, res: Response, next:NextFu
         next(error)
     }
 }
+export const registerAdminController = async(req: Request, res: Response, next:NextFunction) =>{
+
+    try {
+        const {name, email, password} = req.body;
+        if(!name || !email || !password){
+            throw new Error("All fields required")
+        }
+        let role = 'admin'
+        const useCase = new RegisterUseCase(userRepository)
+        const user = await useCase.execute(email, name, password, role)
+
+        const accessToken = generateAccessToken({id: user._id})
+
+        res.cookie('adminAccessToken', accessToken , accessTokenOptions)
+
+        res.status(200).json({success: true, message : 'Admin registration success.', data: {user, accessToken}})
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 export const loginController= async(req:Request, res: Response, next: NextFunction) => {
     try {
@@ -41,7 +63,6 @@ export const loginController= async(req:Request, res: Response, next: NextFuncti
         if(!user){
             throw new Error('Login failed')
         }
-        console.log(user)
 
         const accessToken = generateAccessToken({id: user._id})
         
@@ -53,12 +74,47 @@ export const loginController= async(req:Request, res: Response, next: NextFuncti
     }
 }
 
+export const adminLoginController= async(req:Request, res: Response, next: NextFunction) => {
+    try {
+        const {email, password} = req.body;
+
+        if(!email || !password) {
+            throw new Error('All fields required')
+        }
+
+        const useCase = new adminLoginUseCase(userRepository)
+        const user = await useCase.execute(email, password)
+        if(!user){
+            throw new Error('Login failed')
+        }
+
+        const accessToken = generateAccessToken({id: user._id})
+        
+        res.cookie('adminAccessToken', accessToken, accessTokenOptions)
+
+        res.status(200).json({success: true, message: "Admin logged in successfully.", data: {user, accessToken}})
+    } catch (error) {
+        next(error)
+    }
+}
+
 export const logoutController = async(req:Request, res: Response, next:NextFunction) => {
     try {
-        res.clearCookie('accessToken', accessTokenOptions)
+        res.clearCookie('accessToken')
 
         console.log('User logged out successfully.')
         res.status(200).json({success: true, message : "User loggedout successfully."})
+    } catch (error) {
+        next(error)
+    }
+}
+
+export const adminLogoutController = async(req:Request, res: Response, next:NextFunction) => {
+    try {
+        res.clearCookie('adminAccessToken')
+
+        console.log('Admin logged out successfully.')
+        res.status(200).json({success: true, message : "Admin loggedout successfully."})
     } catch (error) {
         next(error)
     }

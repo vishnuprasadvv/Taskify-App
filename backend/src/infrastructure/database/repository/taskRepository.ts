@@ -1,8 +1,18 @@
 
 
+import mongoose, { Types } from "mongoose";
 import { ITaskRepository } from "../../../application/interface/ITaskRepository";
 import { Task } from "../../../domain/entities/Task";
 import { TaskModel } from "../models/TaskModel"
+
+interface PopulatedTask extends mongoose.Document {
+    title: string;
+    description: string;
+    assignedTo: Types.ObjectId;
+    userId: { _id: Types.ObjectId; name: string };
+    dueDate: Date;
+    _id: string
+  }
 
 
 export class TaskRepository implements ITaskRepository {
@@ -25,12 +35,13 @@ export class TaskRepository implements ITaskRepository {
     }
     async findAllById(userId: string):Promise<Task[]> {
         try {
-            const tasks =  await TaskModel.find({userId});
-            console.log(tasks)
+            const tasks =  await TaskModel.find({userId}).sort({createdAt: -1})
+            
             return tasks.map(task => ({
                 ...task.toObject(),
                 userId : task.userId.toString() ,
-                _id: task._id.toString()
+                _id: task._id.toString(),
+                assignedTo: task.assignedTo? task.assignedTo.toString() : undefined
             }))
         } catch (error:any) {
             throw new Error('Error fetching tasks' + error.message)
@@ -74,4 +85,41 @@ export class TaskRepository implements ITaskRepository {
             throw new Error('Error deleting task: ' + error.message )
         }
     }
+
+    async getTasksForUser(userId: string):Promise<Task[]> {
+        try {
+            
+            const tasks = await TaskModel.find({assignedTo: userId}).populate('userId', 'name').lean() as unknown as PopulatedTask[]
+
+            return tasks.map(task => ({
+                ...task,
+                _id: task._id.toString(),
+                assignedTo: task.assignedTo.toString(),
+                userId:task.userId._id.toString(),
+                adminName: task.userId.name
+            }))
+
+        } catch (error:any) {
+            throw new Error('Error fetching user tasks: ' + error.message)
+        }
+    }
+
+    async updateStatus(id:string, status: string) {
+        try {
+            const updatedTask = await TaskModel.findByIdAndUpdate(id, {status}, {
+                new : true, 
+                runValidators: true,
+            })
+
+            if(!updatedTask) {
+                throw new Error('Task not found')
+            }
+
+            return updatedTask;
+
+        } catch (error:any) {
+            throw new Error('Error updating task: ' + error.message)
+        }
+    }
+
 }

@@ -1,6 +1,9 @@
 import { getAllTasksForUserApi, updateTaskStatusApi } from '@/api/api'
+import { RootState } from '@/app/store'
+import socket from '@/utils/socket'
 import React, { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useSelector } from 'react-redux'
 
 
 interface Task {
@@ -20,7 +23,35 @@ const UserDashboard:React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([])
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
     const [newStatus, setNewStatus] = useState<string>('')
+    const {user}  = useSelector((state:RootState) => state.user)
+   
+    useEffect(()=> {
+      if(!user) {
+        return ;
+      }
+      socket.emit('join-room', user._id);
 
+      socket.on('taskAssigned', (task:Task) => {
+        toast.success(`New task assigned: ${task.title}`);
+        setTasks((prev) => [...prev, task])
+      })
+
+      socket.on('taskUpdated', (task) => {
+        toast(`Task updated: ${task.title}`, {icon:'ℹ️'});
+        setTasks((prev) => prev.map(t=> t._id === task._id ? task : t))
+      });
+
+      socket.on('taskRemoved', (taskId)=> {
+        toast(`Task removed`, {icon:'🗑️'});
+        setTasks((prev) => prev.filter(t => t._id !== taskId))
+      })
+
+      return() => {
+        socket.off('taskAssigned')
+        socket.off('taskUpdated')
+        socket.off('taskRemoved')
+      }
+    },[])
     useEffect(() => {
         const fetchTasks = async() =>{
             try {
@@ -56,6 +87,16 @@ const UserDashboard:React.FC = () => {
               task._id === selectedTask._id ? { ...task, status: newStatus } : task
             )
           )
+          let updatedTask = {
+            _id: selectedTask._id,
+            status: newStatus,
+            title: selectedTask.title
+          }
+          socket.emit('taskStatusUpdated', {
+            task: updatedTask, 
+            adminId: selectedTask.userId,
+            userId: user?._id
+          })
           toast.success('Task status updated successfully')
           setSelectedTask(null) // Close the modal
         } catch (error: any) {
@@ -71,7 +112,7 @@ const UserDashboard:React.FC = () => {
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-flow-col-dense w-full overflow-x-hidden">
                 {tasks.map((task) => (
-                  <div key={task._id} className={`cursor-pointer gap-2 flex flex-col m-2 rounded-xl p-2 text-white ${task.status === 'completed' ? 'bg-emerald-400' : 'bg-slate-400'}`}
+                  <div key={task._id} className={`cursor-pointer gap-2 flex flex-col m-2 rounded-xl p-3 text-white ${task.status === 'completed' ? 'bg-emerald-400' : 'bg-slate-400'}`}
                   onClick={() => openModal(task)}
                   >
                     <h4 className='font-semibold text-lg'>{task.title}</h4>

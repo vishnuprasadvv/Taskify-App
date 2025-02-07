@@ -1,15 +1,17 @@
 import { Router } from "express";
-import { createTaskController, deleteTaskController, getAllTasksController, updateTaskController } from "../controllers/taskController";
-import { isAuthenticated } from "../middlewares/authMiddleware";
+import { createTaskController, deleteTaskController, getAllTasksController, getTasksByUserController, getUsersController, updateTaskController } from "../controllers/taskController";
+import { isAdminAuthenticated} from "../middlewares/authMiddleware";
 
 
 const router = Router();
 
 
-router.post('/create', isAuthenticated, createTaskController)
-router.patch('/update/:id', updateTaskController)
-router.delete('/delete/:id', deleteTaskController)
-router.get('/', getAllTasksController)
+router.post('/create', isAdminAuthenticated, createTaskController)
+router.patch('/update/:id', isAdminAuthenticated,updateTaskController)
+router.delete('/delete/:id',isAdminAuthenticated, deleteTaskController)
+router.get('/user', isAdminAuthenticated, getTasksByUserController)
+router.get('/all',isAdminAuthenticated, getAllTasksController)
+router.get('/users',isAdminAuthenticated, getUsersController)
 
 
 

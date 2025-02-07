@@ -1,9 +1,9 @@
 import { TaskRepository } from "../../infrastructure/database/repository/taskRepository";
 
-export class GetAllTasksUseCase {
+export class GetTasksByUserUseCase {
     constructor(private taskRepository : TaskRepository){}
 
-    async execute() {
-        return this.taskRepository.findAll();
+    async execute(userId: string) {
+        return this.taskRepository.findAllById(userId);
     }
 }

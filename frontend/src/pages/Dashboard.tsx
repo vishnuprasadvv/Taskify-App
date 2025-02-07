@@ -1,10 +1,12 @@
 import { createTask, deleteTaskApi, getAllUsers, getTasksApi, updateTaskApi } from "@/api/api";
+import { RootState } from "@/app/store";
 import EditTaskForm from "@/components/EditTaskForm";
 import TaskForm from "@/components/TaskForm";
 import socket from "@/utils/socket";
 import { PencilIcon, Plus, Trash2Icon } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 
@@ -27,6 +29,7 @@ const Dashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
    const [users, setUsers] = useState<User[]>([]);
+   const {admin} = useSelector((state:RootState) => state.admin)
 
    function findUser(id:string){ 
     let user =  users.find(user => user._id === id)
@@ -66,27 +69,34 @@ const Dashboard: React.FC = () => {
 useEffect(() => {
   fetchTasks()
 
-  socket.on('taskUpdated', (task) => {
-    setTasks(prevTasks => {
-      const taskIndex = prevTasks.findIndex(t => t._id === task._id);
-      if (taskIndex > -1) {
-        prevTasks[taskIndex] = task;
-      } else {
-        prevTasks.push(task);
-      }
-      return [...prevTasks];
-    });
-  });
+  socket.emit('join-room', admin?._id);
+
+  // socket.on('adminTaskUpdate', (task) => {
+  //   toast.success(`New task created: ${task.title}`)
+  // })
 
 
-  socket.on('taskDeleted', (taskId) => {
-    setTasks(prevTasks => prevTasks.filter(task => task._id !== taskId));
-  });
+//   socket.on('adminTaskModified', (task) => {
+//     toast(`Task modified: ${task.title}`, {icon:'ℹ️'});
+//     setTasks((prev) => prev.map(t => (t._id === task._id ? task : t)));
+// });
 
-  return () => {
-    socket.off('taskUpdated');
-    socket.off('taskDeleted');
-  };
+// socket.on('adminTaskDeleted', (taskId) => {
+//   toast(`Task removed`, {icon:'🗑️'});
+//     setTasks((prev) => prev.filter(t => t._id !== taskId));
+// });
+
+socket.on('adminTaskStatusUpdated', (task) => {
+  toast(`User updated task status: ${task.title}`, {icon:'ℹ️'});
+    setTasks((prev) => prev.map(t => (t._id === task._id ? {...t, status: task.status} : t)));
+});
+
+return () => {
+    socket.off('adminTaskUpdate');
+    socket.off('adminTaskModified');
+    socket.off('adminTaskDeleted');
+    socket.off('adminTaskStatusUpdated');
+};
 
 },[])
 
@@ -101,8 +111,13 @@ const handleEditClick = (task:Task) => {
 
      const newTaskData = response.data
      const newTask: Task = {title: newTaskData.title, description: newTaskData.description, dueDate: newTaskData.dueDate, status: "pending", _id: newTaskData._id, assignedTo : newTaskData.assignedTo }
-     
-     socket.emit('taskAdded', newTaskData)
+    
+     const emitTaskData = {
+      task: newTaskData,
+      assignedUserId: task.assignedTo,
+      adminId: admin?._id
+     }
+     socket.emit('taskAdded', emitTaskData)
      setTasks(prev => [newTask, ...prev])
 
       toast.success(response.message || 'Task added successfully')
@@ -133,11 +148,16 @@ const handleEditClick = (task:Task) => {
     }
   }
 
-  const handleDelete = async(id: string) => {
+  const handleDelete = async(id: string, assignedTo: string) => {
     try {
       const response = await deleteTaskApi(id)
       toast.success(response.message)
-      socket.emit('taskDeleted' ,id)
+      const emitData = {
+        taskId: id,
+        assignedUserId: assignedTo,
+        adminId: admin?._id
+      }
+      socket.emit('taskDeleted' ,emitData)
       setTasks(prev => prev.filter(task => task._id !== id))
     } catch (error:any) {
       console.error('Error deleting task', error)
@@ -204,7 +224,7 @@ const handleEditClick = (task:Task) => {
                     onClick={() => handleEditClick(task)}
                     className="btn btn-square bg-teal-400 text-white hover:bg-teal-300"><PencilIcon size={12} /></label> 
                       <button className="btn btn-square"
-                      onClick={() => handleDelete(task._id)}
+                      onClick={() => handleDelete(task._id, task.assignedTo)}
                       ><Trash2Icon size={12}/></button>
                     </td>
 

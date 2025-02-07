@@ -3,7 +3,7 @@ import { UserRepository } from "../../infrastructure/database/repository/userRep
 export class RegisterUseCase {
     constructor(private userRepository: UserRepository){}
 
-    async execute(email: string, name :string, password: string) {
+    async execute(email: string, name :string, password: string , role?: string) {
         
         const findUserExists = await this.userRepository.findByEmail(email)
 
@@ -11,7 +11,7 @@ export class RegisterUseCase {
             throw new Error('User already exists with this email')
         }
 
-        const createUser = await this.userRepository.createUser(email, name, password)
+        const createUser = await this.userRepository.createUser(email, name, password, role)
 
         return createUser;
     }
