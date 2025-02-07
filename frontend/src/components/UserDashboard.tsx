@@ -46,10 +46,16 @@ const UserDashboard:React.FC = () => {
         setTasks((prev) => prev.filter(t => t._id !== taskId))
       })
 
+      socket.on('taskDue', (task) => {
+        toast(`Task due date exceeded: ${task.title}`, {icon:'⚠️'});
+        setTasks(prev => prev.map(t => (t._id === task._id? {...t, status:task.status}: t)))
+      })
+
       return() => {
         socket.off('taskAssigned')
         socket.off('taskUpdated')
         socket.off('taskRemoved')
+        socket.off('taskDue')
       }
     },[])
     useEffect(() => {
@@ -80,6 +86,10 @@ const UserDashboard:React.FC = () => {
 
       const handleStatusUpdate = async () => {
         if (!selectedTask) return
+        if(selectedTask.status === 'due'){
+          toast.error("Task already overdue, you can't change status")
+          return;
+        }
         try {
           await updateTaskStatusApi(selectedTask._id, { status: newStatus })
           setTasks((prevTasks) =>
@@ -112,14 +122,14 @@ const UserDashboard:React.FC = () => {
         <div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-flow-col-dense w-full overflow-x-hidden">
                 {tasks.map((task) => (
-                  <div key={task._id} className={`cursor-pointer gap-2 flex flex-col m-2 rounded-xl p-3 text-white ${task.status === 'completed' ? 'bg-emerald-400' : 'bg-slate-400'}`}
+                  <div key={task._id} className={`cursor-pointer gap-2 flex flex-col m-2 rounded-xl p-3 text-white ${task.status === 'completed' ? 'bg-emerald-400' : task.status === 'pending' ? 'bg-slate-400' : 'bg-red-500'}`}
                   onClick={() => openModal(task)}
                   >
                     <h4 className='font-semibold text-lg'>{task.title}</h4>
                     <span>{task.description}</span>
                     <div className='flex flex-col gap-1'>
                     <span className='text-sm'>Due Date : {formatDate(task.dueDate)}</span>
-                    <span className={`rounded w-max font-semibold py-1 px-2 uppercase text-xs  bg-gray-500 ${task.status === 'completed' ? 'text-teal-400' : 'text-yellow-400'}`}>{task.status}</span>
+                    <span className={`rounded w-max font-semibold py-1 px-2 uppercase text-xs  bg-gray-500 ${task.status === 'completed' ? 'text-teal-400' : task.status === 'pending' ? 'text-yellow-400' : 'text-red-500'}`}>{task.status}</span>
                     </div>
                     <span className='text-sm'>Admin : {task.adminName}</span>
                   </div>
@@ -145,7 +155,7 @@ const UserDashboard:React.FC = () => {
                   <p>{selectedTask.adminName}</p>
 
                   <label className="block text-sm font-medium mt-4 mb-2">Status:</label>
-                  <select
+                  <select disabled={selectedTask.status === 'due'}
                     className="select select-bordered w-full"
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
@@ -153,10 +163,14 @@ const UserDashboard:React.FC = () => {
                     <option value="pending">Pending</option>
                     <option value="completed">Completed</option>
                   </select>
+                  {selectedTask.status == 'due' && (
+                    <span className='text-red-500 font-semibold '>Task is overdue</span>
+                  )}
                 </div>
 
                 <div className="modal-action">
                   <button
+                  disabled= {selectedTask.status === 'due'}
                     className="btn bg-teal-400 text-white hover:bg-teal-300 hover:scale-105 duration-300 transition-all"
                     onClick={handleStatusUpdate}
                   >

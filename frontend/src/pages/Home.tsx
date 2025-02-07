@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { logoutApi } from "@/api/api";
 import { RootState } from "@/app/store";
 import UserDashboard from "@/components/UserDashboard";
+import LOGO from '../../public/checklist.png'
 
 const Home: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.user);
@@ -25,8 +26,11 @@ const Home: React.FC = () => {
   return (
     <div className="bg-gray-100 w-screen  h-screen">
       <div className="max-w-7xl w-full place-self-center">
-        <div className="w-full m-0 bg-teal-100 h-16 flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-teal-700 pl-2">Taskify</h1>
+        <div className="w-full m-0 shadow-md bg-teal-100 h-16 flex items-center justify-between mb-2">
+        <div className="flex  ml-2">
+        <img src={LOGO} alt="logo" width={30} />
+          <h1 className="text-2xl font-bold text-teal-800 pl-2">Taskify</h1>
+        </div>
           <div className="flex items-center gap-4">
             <div>
               <span className="font-semibold">Hi, {user?.name} </span>

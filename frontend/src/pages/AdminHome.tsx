@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { adminLogoutApi } from "@/api/api";
 import { RootState } from "@/app/store";
 import { adminLogout } from "@/features/adminSlice";
+import LOGO from '../../public/checklist.png'
 
 const AdminHome: React.FC = () => {
   const { admin } = useSelector((state: RootState) => state.admin);
@@ -23,10 +24,13 @@ const AdminHome: React.FC = () => {
     }
   };
   return (
-    <div className="bg-gray-100 w-screen h-full">
+    <div className="bg-gray-100 w-full h-full">
       <div className="max-w-7xl w-full place-self-center">
-        <div className="w-full m-0 bg-teal-100 h-16 flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold text-teal-700 pl-2">Taskify</h1>
+        <div className="w-full m-0 bg-teal-100 shadow-md h-16 flex items-center justify-between mb-2">
+        <div className="flex  ml-2">
+        <img src={LOGO} alt="logo" width={30} />
+          <h1 className="text-2xl font-bold text-teal-800 pl-2">Taskify</h1>
+        </div>
           <div className="flex items-center gap-4">
             <div>
               <span className="font-semibold">Hi, {admin?.name} </span>
@@ -55,7 +59,7 @@ const AdminHome: React.FC = () => {
             </div>
           </div>
         </div>
-        <div>
+        <div className="pb-2">
           <Dashboard />
         </div>
       </div>

@@ -80,10 +80,10 @@ const EditTaskForm: React.FC<TaskFormProps> = ({ onSubmit,values, users }) => {
       </div>
 
       <div>
-      <select className="select select-bordered w-full" onChange={(e) => setAssignedTo(e.target.value)}>
+      <select className="select select-bordered w-full" value={status} onChange={(e) => setAssignedTo(e.target.value)}>
         {
           users.map((user) => (
-            <option key={user._id} value={user._id} selected ={user._id === assignedTo}>{user.name}</option>
+            <option key={user._id} value={user._id} >{user.name}</option>
           ))
         }
   

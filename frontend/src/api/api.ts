@@ -56,6 +56,11 @@ export const getAllUsers = async() => {
     return response.data;
 }
 
+export const getChartDataApi = async() => {
+    const response = await api.get('task/chart-data')
+    return response.data;
+}
+
 export const getAllTasksForUserApi = async() => {
     const response = await api.get('user')
     return response.data;
