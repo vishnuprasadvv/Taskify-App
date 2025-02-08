@@ -28,7 +28,7 @@ import toast from "react-hot-toast";
         return response;
     },
     async(error) => {
-        console.log('Interceptor error', error)
+        console.log('Admin interceptor error', error)
 
         if(error.response.status === 401) {
             const errorMessage = error.response.data.message;

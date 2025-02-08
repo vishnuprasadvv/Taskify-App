@@ -23,41 +23,41 @@ export const logoutApi = async() => {
     return response.data;
 }
 export const adminLogoutApi = async() => {
-    const response = await api.post(`auth/admin/logout` )
+    const response = await adminapi.post(`auth/admin/logout` )
     return response.data;
 }
 
 
 export const createTask = async(data: {title:string, dueDate: string, description: string , assignedTo : string}) => {
-    const response = await api.post('task/create', {title: data.title , dueDate: data.dueDate, description:data.description, assignedTo: data.assignedTo})
+    const response = await adminapi.post('task/create', {title: data.title , dueDate: data.dueDate, description:data.description, assignedTo: data.assignedTo})
     return response.data;
 }
 
 export const updateTaskApi = async(id: string, data: {title:string, dueDate: string, description: string, status: string, assignedTo: string}) => {
-    const response = await api.patch(`task/update/${id}`, {title: data.title , dueDate: data.dueDate, description:data.description, status: data.status, assignedTo: data.assignedTo})
+    const response = await adminapi.patch(`task/update/${id}`, {title: data.title , dueDate: data.dueDate, description:data.description, status: data.status, assignedTo: data.assignedTo})
     return response.data;
 }
 export const deleteTaskApi = async(id: string) => {
-    const response = await api.delete(`task/delete/${id}`)
+    const response = await adminapi.delete(`task/delete/${id}`)
     return response.data;
 }
 
 export const getTasksApi = async() => {
-    const response = await api.get('task/user')
+    const response = await adminapi.get('task/user')
     return response.data;
 }
 export const getAllTasksApi = async() => {
-    const response = await api.get('task/all')
+    const response = await adminapi.get('task/all')
     return response.data;
 }
 
 export const getAllUsers = async() => {
-    const response = await api.get('task/users')
+    const response = await adminapi.get('task/users')
     return response.data;
 }
 
 export const getChartDataApi = async() => {
-    const response = await api.get('task/chart-data')
+    const response = await adminapi.get('task/chart-data')
     return response.data;
 }
 
