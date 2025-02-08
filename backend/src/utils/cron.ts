@@ -3,7 +3,7 @@ import { TaskRepository } from '../infrastructure/database/repository/taskReposi
 
 const taskRepository = new TaskRepository()
 
-cron.schedule('* * * * *', async() => {
+cron.schedule('0 0 * * *', async() => {
     try{
         await taskRepository.checkDueTasks();
     }catch(error) {
