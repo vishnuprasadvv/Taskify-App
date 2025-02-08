@@ -10,8 +10,10 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import dotenv from 'dotenv'
 import './utils/cron';
 
+dotenv.config();
 const app = express();
 const PORT = config.App.PORT
 
